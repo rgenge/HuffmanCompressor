@@ -119,33 +119,6 @@ char	*encode_file(char **dictionary, unsigned char *string)
 	return (str_code);
 }
 
-unsigned char	*decode_file(t_node *tree, char *string)
-{
-	int				i;
-	unsigned char	*str_decode;
-	unsigned char	temp[2];
-	t_node			*aux;
-
-	i = -1;
-	aux = tree;
-	str_decode = calloc (strlen(string), sizeof(unsigned char));
-	while (string[++i] != '\0')
-	{
-		if (string[i] == '0')
-			aux = aux->left;
-		else
-			aux = aux->right;
-		if (aux->left == NULL && aux->right == NULL)
-		{
-			temp[0] = aux->character;
-			temp[1] = '\0';
-			str_decode = ft_strjoin(str_decode, temp);
-			aux = tree;
-		}
-	}
-	return (str_decode);
-}
-
 unsigned int		checking_bit(char byte, int i)
 {
 	unsigned char	bit_checker;
@@ -225,7 +198,8 @@ void	encode_input(unsigned char *file_content, long size, t_node	**tree,
 	char			**dictionary;
 	int				height;
 	char			*str_code;
-	unsigned char	*str_decode;
+	long			*shared_memory;
+	int				shmid;
 
 	for(i = 0; i < SIZE; i++)
 		frequency_table[i] = 0;
@@ -235,9 +209,6 @@ void	encode_input(unsigned char *file_content, long size, t_node	**tree,
 		frequency_table[(int)file_content[i]]++;
 		i++;
 	}
-	long	*shared_memory;
-	int		shmid;
-
 	shmid = shmget((key_t)5678, sizeof(int), 0666 | IPC_CREAT);
 	shared_memory = (long *)shmat(shmid, NULL, 0);
 	for(i = 0; i < SIZE; i++)
@@ -265,9 +236,8 @@ void	encode_input(unsigned char *file_content, long size, t_node	**tree,
 		dictionary[i] = calloc (height, sizeof(char));
 	fill_dictionary(dictionary, height, *tree, data, "");
 	str_code = encode_file(dictionary, file_content);
-	str_decode = decode_file(*tree, str_code);
 	compress(str_code, output_name, data);
-	multiple_free(NULL, str_decode, str_code, NULL, data);
+	multiple_free(NULL, NULL, str_code, NULL, data);
 	destroy_pointers_char(dictionary);
 }
 
@@ -310,7 +280,7 @@ int main(int argc, char **argv)
 		size = 0;
 		input = fopen(argv[1], "r");
 		if (input == NULL)
-			error_msg("Error: Can't open file");
+			error_msg("Error: Can't open file ");
 		size = open_input(input, size, data);
 		file_content = malloc(sizeof(unsigned char) * (size + 1));
 		read_close_input(input, file_content, size);

@@ -88,13 +88,6 @@ Generates the code for the string using it's dictionary
 char			*encode_file(char **dictionary, unsigned char *string);
 
 /*
-Read the code and generate a string
-@param[in] *tree Huffman tre.
-@param[in] *string Generated code string.
-*/
-unsigned char	*decode_file(t_node *tree, char *string);
-
-/*
 It will shift you binary to the left i times and them check if it is a 0 or 1
 @param[in] byte The byte you will check.
 @param[in] i The number of times you will shift.
@@ -131,8 +124,9 @@ then we finalize the process by compressing it using bit operations.
 void			encode_input(unsigned char *file_content, long size, t_node	**tree, char *output_name, t_data *data);
 
 /*
-Create a frequency table from the shared memory and fill it with the chacaracters frequency in the file content, after that we create the nodes to
-use to create the tree later on, then we create a dictionary which you
+Create a frequency table from the shared memory and fill it with the
+chacaracters frequency in the file content, after that we create the nodes
+used to create the tree later on, then we create a dictionary which you
 atributte a code to each character then we finalize the process by
 decompressing using bit operation.
 @param[in] *file_content The file content.

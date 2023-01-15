@@ -235,6 +235,7 @@ void	output_info_print(void)
 int main(int argc, char **argv)
 {
 	char			*output_name;
+	char			*output_name_check;
 	unsigned char	*file_content;
 	long			size;
 	FILE			*input;
@@ -244,6 +245,9 @@ int main(int argc, char **argv)
 	setlocale(LC_ALL, "utf8");
 	if (argc != 3 && argc != 2)
 		error_msg("Please type 2 or 3 arguments");
+	output_name_check = ft_substr(argv[1], (strlen(argv[1]) - 4), 5);
+	if (strncmp(output_name_check, "labs", 5))
+		error_msg("Error: Can't open file file must be .labs");
 	if (argc == 2 || argc == 3)
 	{
 		size = 0;
@@ -259,6 +263,7 @@ int main(int argc, char **argv)
 	output_name = strdup(argv[1]);
 	decode_input(&tree, output_name, data);
 	multiple_free(file_content, NULL,  output_name, tree, NULL);
+	free(output_name_check);
 	printf(GRN "<<<Successful decompression>>>\n"    RESET);
 	return (0);
 }
