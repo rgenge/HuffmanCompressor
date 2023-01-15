@@ -4,7 +4,7 @@ NAME2 = decoder
 
 CC = gcc
 
-CFLAGS = -g -Wall -Wextra #-Werror
+CFLAGS = -g -Wall -Wextra -Werror
 
 SOURCE1 = encoder.c utils.c
 

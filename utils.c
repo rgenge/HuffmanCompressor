@@ -23,7 +23,8 @@ void	free_tree(t_node *tree)
 	free(tree);
 }
 
-void	multiple_free(char *var1, char *var2, char *var3, t_node *tree, t_data *data)
+void	multiple_free(unsigned char *var1, unsigned char *var2, char *var3, t_node
+			*tree, t_data *data)
 {
 	if (var1)
 		free(var1);
@@ -65,22 +66,30 @@ size_t	ft_strlen(const char *str)
 	return (i);
 }
 
-char	*ft_strjoin(char *s1, char *s2)
+unsigned char	*ft_strjoin(unsigned char *s1, unsigned char *s2)
 {
-	size_t	i;
-	size_t	j;
-	char	*dest;
+	size_t			i;
+	size_t			j;
+	size_t			len;
+	unsigned char	*dest;
 
 	i = 0;
 	j = 0;
+	len = 0;
 	if (!s1)
 	{
-		s1 = (char *)malloc(1 * sizeof(char));
+		s1 = (unsigned char *)malloc(1 * sizeof(unsigned char));
 		s1[0] = '\0';
 	}
 	if (!s1 || !s2)
 		return (NULL);
-	dest = malloc((ft_strlen(s1) + ft_strlen(s2) + 1) * sizeof(char));
+	while (s1[len])
+		len++;
+	while (s2[j])
+		j++;
+	len = len + j;
+	j = 0;
+	dest = malloc((len + 1) * sizeof(unsigned char));
 	if (dest == NULL)
 		return (NULL);
 	if (s1)
@@ -122,4 +131,31 @@ char	*ft_strjoin_2(char *s1, char *s2)
 	return (dest);
 }
 
+char	*ft_substr(char const *s, unsigned int start, size_t len)
+{
+	size_t	i;
+	char	*dest;
+	size_t	lens;
 
+	i = 0;
+	if (s)
+		lens = ft_strlen(s);
+	else
+		return (NULL);
+	if (start >= lens)
+		dest = (char *)malloc(1);
+	else if (len >= lens)
+		dest = (char *)malloc(lens - start + 2);
+	else
+		dest = (char *)malloc(lens + 1);
+	if (!dest)
+		return ((char *)s);
+	while (start < lens && i < len)
+	{
+		dest[i] = s[start];
+		i++;
+		start++;
+	}
+	dest [i] = '\0';
+	return (dest);
+}

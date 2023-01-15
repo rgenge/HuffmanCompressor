@@ -1,7 +1,6 @@
 #include "header.h"
 
-/*Function that find the least frequent character*/
-int	smaller1 (t_data *data, t_node *node[SIZE])
+int	smaller1(t_data *data, t_node *node[SIZE])
 {
 	int		i;
 	long	min;
@@ -16,7 +15,6 @@ int	smaller1 (t_data *data, t_node *node[SIZE])
 			minindex = i;
 		}
 	}
-	printf("small1 %d \t %ld  %c\n",minindex, node[minindex]->charfrequency, 					node[minindex]->character);//delt//delt//delt//delt
 	return (minindex);
 }
 
@@ -28,20 +26,17 @@ int	smaller2 (t_data *data, t_node *node[SIZE], int small1)
 
 	min = LONG_MAX;
 	minindex = data->i;
-	for(i = 0; i < data->tree_size; i++)
+	for (i = 0; i < data->tree_size; i++)
 	{
-		if(i != small1 && node[i]->charfrequency <= min && node[i]
+		if (i != small1 && node[i]->charfrequency <= min && node[i]
 			->characterindex !=127)
 		{
 			min = node[i]->charfrequency;
 			minindex = i;
 		}
 	}
-	printf("small2 %d \t %ld  %c\n",minindex, node[minindex]->charfrequency, 					node[minindex]->character);//delt//delt//delt//delt//delt
 	return (minindex);
 }
-
-/*This is the process that will in fact create the tree, by reading the nodes and always adding the smaller1 and smaller2 frequency to make a new node untill you have only one node*/
 
 void	create_subtrees(t_data *data, t_node *node[SIZE], t_node	**tree)
 {
@@ -69,8 +64,8 @@ void	create_subtrees(t_data *data, t_node *node[SIZE], t_node	**tree)
 	*tree = node[small1];
 }
 
-/*This function will run the dictionary and find every character found in the file content and atributte a code for it */
-void	fill_dictionary(char **dictionary, int height, t_node *tree, t_data *data, char *path)
+void	fill_dictionary(char **dictionary, int height, t_node *tree, t_data
+			*data, char *path)
 {
 	char	left[height];
 	char	right[height];
@@ -88,7 +83,6 @@ void	fill_dictionary(char **dictionary, int height, t_node *tree, t_data *data, 
 	}
 }
 
-/*Function to get the tree height so we can use it in the dictionary*/
 int	tree_height(t_node *tree, t_data *data)
 {
 
@@ -107,8 +101,8 @@ int	tree_height(t_node *tree, t_data *data)
 			return right;
 	}
 }
-/*This process generates the code for the string using it's dictionary*/
-char	*encode_file(char **dictionary, char *string)
+
+char	*encode_file(char **dictionary, unsigned char *string)
 {
 	int		i;
 	int		size;
@@ -118,28 +112,23 @@ char	*encode_file(char **dictionary, char *string)
 	size = 0;
 	while (string[++i] != '\0')
 		size = size + strlen(dictionary[(int)string[i]]);
-	printf("size: %d\n", size); //delt//delt//delt//delt
 	str_code = calloc (size + 1, sizeof(char));
 	i = -1;
-	while(string[++i] != '\0')
-	{
+	while (string[++i] != '\0')
 		strcat(str_code, dictionary[(int)string[i]]);
-		printf("%c %s\n",(int)string[i],   dictionary[(int)string[i]]); //delt
-	}
 	return (str_code);
 }
 
-/*The inverse process will get a code and generate a string*/
-char	*decode_file(t_node *tree, char *string)
+unsigned char	*decode_file(t_node *tree, char *string)
 {
-	int		i;
-	char	*str_decode;
-	char	temp[2];
-	t_node	*aux;
+	int				i;
+	unsigned char	*str_decode;
+	unsigned char	temp[2];
+	t_node			*aux;
 
 	i = -1;
 	aux = tree;
-	str_decode = calloc (strlen(string), sizeof(char));
+	str_decode = calloc (strlen(string), sizeof(unsigned char));
 	while (string[++i] != '\0')
 	{
 		if (string[i] == '0')
@@ -150,7 +139,7 @@ char	*decode_file(t_node *tree, char *string)
 		{
 			temp[0] = aux->character;
 			temp[1] = '\0';
-			strcat (str_decode, temp);
+			str_decode = ft_strjoin(str_decode, temp);
 			aux = tree;
 		}
 	}
@@ -164,46 +153,37 @@ unsigned int		checking_bit(char byte, int i)
 	bit_checker = (1 << i);
 	return (byte & bit_checker);
 }
-/*This process will do the inverse using bit operations running the tree and finding which letter belongs to the code found*/
-void	decompress(char *output_name, t_node *tree)
+
+void	output_info(FILE *file, t_data *data, int i)
 {
-	FILE	*file = fopen(output_name, "rb");
-	unsigned char	byte;
-	int		i;
-	t_node	*aux;
+	double	*shared_output;
+	int		shmid;
+	double	timestamp;
+	double	final;
+	double	output_size;
+	double	output_size_2;
 
-	aux = tree;
-	if (file)
-	{
-		while (fread(&byte, sizeof(unsigned char), 1, file))
-		{
-			for(i = 7; i >= 0; i--)
-			{
-				if (checking_bit(byte, i))
-					aux = aux->right;
-				else
-					aux = aux->left;
-				if (aux->left == NULL && aux->right == NULL)
-				{
-					printf("%c", aux->character);
-					aux = tree;
-				}
-			}
-		}
-		fclose(file);
-	}
-	else
-		printf("Error decompressing");
-
+	final = clock();
+	timestamp = (double)(final- data->initial) / CLOCKS_PER_SEC;
+	fseek(file, 0L, SEEK_END);
+	output_size = ftell(file);
+	shmid = shmget((key_t)2346, sizeof(double), 0666 | IPC_CREAT);
+	shared_output = (double *)shmat(shmid, NULL, 0);
+	shared_output[OUT_SIZE] = output_size;
+	shared_output[IN_SIZE] = data->input_size;
+	shared_output[OUT_TIME] = timestamp;
+	output_size_2 = (double)i;
+	shared_output[OUT_STR_LEN] = output_size_2;
+	shared_output[OUT_RATE] = (100 * output_size) / data->input_size;
 }
-/*This process will compress the file reading the genrated string and then using bit operations to tranform the code in binary to reduce the file size*/
-void	compress(char str[], char *output_name)
+
+void	compress(char str[], char *output_name, t_data *data)
 {
-	FILE	*file = fopen(output_name, "wb");
-	int		i;
+	FILE			*file = fopen(output_name, "wb");
+	int				i;
 	unsigned char	byte;
 	unsigned char	bit_checker;
-	int	size;
+	int				size;
 
 	i = 0;
 	byte = 0;
@@ -212,7 +192,6 @@ void	compress(char str[], char *output_name)
 	{
 		while (str[i])
 		{
-//			printf("comp: %c\t", str[i]);
 			bit_checker = 1;
 			if (str[i] == '1')
 			{
@@ -230,25 +209,24 @@ void	compress(char str[], char *output_name)
 		}
 		if (size != 7)
 			fwrite(&byte, sizeof(unsigned char), 1, file);
+		output_info(file, data, i);
 		fclose(file);
 	}
 	else
 		printf("Error compressing");
 }
 
-/*First of all we have to create a frequency table and fill it with the chacaracters frequency in the file content, after that we create the nodes to use to create the tree later on, then we create a dictionary which you atributte a code to each character then we finalize the process*/
-void	encode_input(char *file_content, long size, t_node	**tree, char *output_name)
+void	encode_input(unsigned char *file_content, long size, t_node	**tree,
+			char *output_name, t_data *data)
 {
 	t_node			*node[SIZE];
 	int				i;
-	t_data			*data;
 	long			frequency_table[SIZE];
 	char			**dictionary;
 	int				height;
 	char			*str_code;
-	char			*str_decode;
+	unsigned char	*str_decode;
 
-	data = (t_data *)calloc(1,sizeof(t_data));
 	for(i = 0; i < SIZE; i++)
 		frequency_table[i] = 0;
 	i = 0;
@@ -257,12 +235,13 @@ void	encode_input(char *file_content, long size, t_node	**tree, char *output_nam
 		frequency_table[(int)file_content[i]]++;
 		i++;
 	}
-	int	*shared_memory;
-	int	shmid;
-	shmid = shmget((key_t)2345, sizeof(int), 0666|IPC_CREAT);
-	shared_memory = (int *)shmat(shmid, NULL, 0);
-	for(int x = 0; x < SIZE; x++)
-		shared_memory[x] = frequency_table[x];
+	long	*shared_memory;
+	int		shmid;
+
+	shmid = shmget((key_t)5678, sizeof(int), 0666 | IPC_CREAT);
+	shared_memory = (long *)shmat(shmid, NULL, 0);
+	for(i = 0; i < SIZE; i++)
+		shared_memory[i] = frequency_table[i];
 	data->tree_size = 0;
 	i = 0;
 	while (i < SIZE)
@@ -287,50 +266,43 @@ void	encode_input(char *file_content, long size, t_node	**tree, char *output_nam
 	fill_dictionary(dictionary, height, *tree, data, "");
 	str_code = encode_file(dictionary, file_content);
 	str_decode = decode_file(*tree, str_code);
-	compress(str_code, output_name);
-//	decompress(output_name, *tree);
-
-	// for(int j =0; j <data->tree_size; j++)
-	// printf("%d   %ld\t %c \n",j,  node[j]->charfrequency, node[j]
-	// 	->characterindex);
-	// printf("%s  \t \n", str_code);
-	// printf("%s  \t \n", str_decode);
-	// for(int j =0; j < SIZE; j++)
-	// 	printf("%d %s  \t \n",j, dictionary[j]);
-
-	multiple_free(str_code, str_decode,NULL, NULL, data);
+	compress(str_code, output_name, data);
+	multiple_free(NULL, str_decode, str_code, NULL, data);
 	destroy_pointers_char(dictionary);
 }
 
-/*Opening input, getting beggining and end of a string and it's size*/
-long	open_input(FILE *input, long size)
+long	open_input(FILE *input, long size, t_data *data)
 {
+	fseek(input, 0L, SEEK_END);
+	data->input_size = ftell(input);
 	fseek(input, 0, SEEK_END);
 	size = ftell(input);
 	fseek(input, 0, SEEK_SET);
 	return (size);
 }
 
-/*Reading the file and saving it into the file_content string*/
-void	read_close_input(FILE *input, char *file_content, long size)
+void	read_close_input(FILE *input, unsigned char *file_content, long size)
 {
 	file_content[size] = '\0';
 	fread(file_content, sizeof(char), size, input);
 	fclose(input);
 }
 
-/*The main function will read the input which will be a file, after reading it it will store it and we will read the file and start the encoding process*/
 int main(int argc, char **argv)
 {
-	char	*output_name;
-	char	*file_content;
-	char	*file_content2;
-	long	size;
-	long	size2;
-	FILE	*input;
-	FILE	*input2;
-	t_node	*tree;
+	char			*output_name;
+	unsigned char	*file_content;
+	unsigned char	*file_content2;
+	long			size;
+	long			size2;
+	FILE			*input;
+	FILE			*input2;
+	t_node			*tree;
+	t_data			*data;
 
+	setlocale(LC_ALL, "utf8");
+	data = (t_data *)calloc(1,sizeof(t_data));
+	data->initial = clock();
 	if (argc != 3 && argc != 2)
 		error_msg("Please type 2 or 3 arguments");
 	if (argc == 2 || argc == 3)
@@ -339,8 +311,8 @@ int main(int argc, char **argv)
 		input = fopen(argv[1], "r");
 		if (input == NULL)
 			error_msg("Error: Can't open file");
-		size = open_input(input, size);
-		file_content = malloc(sizeof(char) * (size + 1));
+		size = open_input(input, size, data);
+		file_content = malloc(sizeof(unsigned char) * (size + 1));
 		read_close_input(input, file_content, size);
 	}
 	if (argc == 3)
@@ -349,14 +321,16 @@ int main(int argc, char **argv)
 		input2 = fopen(argv[2], "r");
 		if (input2 == NULL)
 			error_msg("Error: Can't open file");
-		size2 = open_input(input2, size2);
-		file_content2 = malloc(sizeof(char) * (size2 + 1));
+		size2 = open_input(input2, size2, data);
+		file_content2 = malloc(sizeof(unsigned char) * (size2 + 1));
 		read_close_input(input2, file_content2, size2);
 		file_content = ft_strjoin(file_content, file_content2);
 		free(file_content2);
 	}
+
 	output_name = ft_strjoin_2(argv[1], ".labs");
-	encode_input(file_content, size, &tree, output_name);
+	encode_input(file_content, size, &tree, output_name, data);
 	multiple_free(file_content, NULL,  output_name, tree, NULL);
+	printf(GRN "<<<Successful compression>>>\n" RESET);
 	return (0);
 }

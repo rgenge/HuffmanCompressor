@@ -1,66 +1,8 @@
-# Labs 4º Edição
-
-## Desafio
-
-O desafio consiste no desenvolvimento de uma aplicação de análise e compressão de dados. Essa aplicação utilizará o algoritmo de compressão Huffman e poderá receber múltiplos dados onde, uma vez que comprimido deve ser descomprimido e coletar informações pertinentes para a análise do processo e dado.
-
-Para isso, você criará dois programas: `encoder` e `decoder`. O encoder receberá o dado a ser comprimido e exibirá suas informações vindas do decoder. Já, o decoder descomprimirá o dado e irá enviá-lo ao encoder com suas informações, onde será exibido. Os programas devem se comunicar utilizando *shared memory operations*.
-
-A linguagem C será utilizada para o desenvolvimento e não há bibliotecas externas permitidas.
-
-## É necessário
-
-- Que existam dois programas `encoder` e `decoder` que se comuniquem via memória compartilhada.
-- Que o `encoder` possa receber, no mínimo, múltiplos textos como dado e comprimi-lo. Caso mais de um texto seja enviado, devem ser comprimidos juntos, resultando em apenas um único dado.
-- Que o algoritmo de Huffman seja implementando em sua totalidade e que o processo de compressão e descompressão ocorram utilizando-o.
--  Que o `decoder` possa descomprimir e enviar as seguintes informações ao `encoder`: dado descomprimido, quantidade de bits ou bytes totais, quantidade de bits ou bytes comprimidos e o tempo da operação de descompressão.
-- O `encoder` exibir as informações recebidas pelo `decoder`.
-
-### O que será avaliado
-
-- Código bem escrito e limpo.
-- A documentação do seu código.
-- Ferramentas que foram utilizadas e por quê.
-- Sua criatividade e capacidade de lidar com problemas diferentes.
-- Alinhamento do seu projeto com a proposta.
-
-### O mínimo necessário
-
-- README.md com a documentação contendo informações do projeto.
-
-### Bônus
-
-Os itens a seguir não são obrigatórios, mas são funcionalidades que darão mais valor ao seu desafio.
-
-- Compressão de múltiplos arquivos binários.
-- Criptografia do dado comprimido, utilizando senha fornecida pelo usuário.
-- Verificação de integridade do arquivo comprimido.
-- Opção para escolher mais outro algoritmo de compressão a ser utilizado.
-- Tempo de descompressão (`decoder`) abaixo da média dos candidatos.
-- Cuidados especiais com otimização e padrões de código.
-- Uso de ferramentas externas para planejamento nas etapas de desenvolvimento.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # Data compression program using Huffman coding
 
 #Introduction
 
-- The program is divided in 2 parts, Encoding and Decoding. 
+- The program is divided in 2 parts, Encoding and Decoding.
 - The Enconding part consists on :
 - 1 -Reading the input and getting the characters and how many times they are repeated in the input.
 - 2 -Creating a Huffman Tree with the chacaracters found in the file.
@@ -83,9 +25,10 @@ As you can see the Huffmann coding will result in that tree that is used to enco
 Instead of having the whole ASCII table with 8 bits each character, you will create your own coding table with less memory used due to the Huffman algorithm.
 You can find a brief explanation about it there: https://en.wikipedia.org/wiki/Huffman_coding
 
+
 #Shared Memory
 
-In this program we use the sys/shm.h library and shared memory functions to share the information from the encoder to the decoder. Shared memory is used to improve the data management of the programs, because you can use the same memory address and it is even faster to access the memory.
+In this program we use the sys/shm.h library and shared memory functions to share the information used for compress the file from the encoder to the decoder. Shared memory is used to improve the data management of the programs, because you can use the same memory address and it is even faster to access the memory. In this program we used the shared memory to save the compression rate, files size, and time. Those information are stored when compressing and then impressed by the descompressor.
 You can find more about it here : https://man7.org/linux/man-pages/man0/sys_shm.h.0p.html
 
 
@@ -104,6 +47,6 @@ make
 ```
 ./encoder {filename1} {filename2} ...
 ```
-3.  And to decompress a compressed file, use the `./decoder` command below without .labs exntension:
+3.  And to decompress a compressed file, use the `./decoder` command  and do not forget the generated file has .labs extension:
 ```
-./decoder {filename}
+./decoder {filename}.labs
